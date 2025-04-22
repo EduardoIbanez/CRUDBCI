@@ -13,5 +13,7 @@ public class ConstantBCI {
     public static final String PASSWORD_ERROR= "Contraseña inválida";
     public static final String EMAIL_REGISTER_ERROR= "El email ya está registrado";
     public static final String GET_USER_ERROR= "El usuario con ese UUID no existe";
+    public static final String UUID_USER_ERROR= "El UUID es requerido para realizar la acción";
+    public static final String DELETE_USER_SUCCESS= "El usuario ha sido eliminado con exito";
 
 }

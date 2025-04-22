@@ -1,6 +1,10 @@
 package com.demo.crudBCI.controller;
 
+import com.demo.crudBCI.dto.request.GetUserDTO;
+import com.demo.crudBCI.dto.request.UserPatchDTO;
 import com.demo.crudBCI.dto.request.UserRequestDTO;
+import com.demo.crudBCI.dto.request.UserUpdateRequestDTO;
+import com.demo.crudBCI.dto.response.SuccessDTO;
 import com.demo.crudBCI.dto.response.UserResponseDTO;
 import com.demo.crudBCI.service.CRUDUserService;
 import org.springframework.http.HttpStatus;
@@ -17,27 +21,27 @@ public class UserController {
         this.crudUserService = crudUserService;
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable String uuid){
-        return new ResponseEntity<>(crudUserService.getUser(uuid), HttpStatus.OK);
+    @GetMapping("user")
+    public ResponseEntity<UserResponseDTO> getUser(@RequestBody GetUserDTO getUser){
+        return new ResponseEntity<>(crudUserService.getUser(getUser), HttpStatus.OK);
     }
-    @PostMapping("/create")
+    @PostMapping("create")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO user){
         return new ResponseEntity<>(crudUserService.createUser(user), HttpStatus.CREATED);
     }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUser(){
-        return new ResponseEntity<>(null);
+    @PutMapping("updateActive")
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserUpdateRequestDTO user){
+        return new ResponseEntity<>(crudUserService.updateUser(user), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/update/{id}")
-    public ResponseEntity<?> updatePatchUser(){
-        return new ResponseEntity<>(null);
+    @PatchMapping("updatePatch")
+    public ResponseEntity<UserResponseDTO> updatePatchUser(@RequestBody UserPatchDTO userPatchDTO){
+        return new ResponseEntity<>(crudUserService.updatePatchUser(userPatchDTO), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(){
-        return new ResponseEntity<>(null);
+    @DeleteMapping("delete")
+    public ResponseEntity<SuccessDTO> deleteUser(@RequestBody GetUserDTO userDTO){
+        return new ResponseEntity<>(crudUserService.deleteUser(userDTO), HttpStatus.OK);
     }
 
 }

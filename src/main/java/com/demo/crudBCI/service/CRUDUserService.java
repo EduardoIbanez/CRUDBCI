@@ -1,9 +1,9 @@
 package com.demo.crudBCI.service;
 
 import com.demo.crudBCI.constant.ConstantBCI;
-import com.demo.crudBCI.dto.request.PhoneRequestDTO;
-import com.demo.crudBCI.dto.request.UserRequestDTO;
+import com.demo.crudBCI.dto.request.*;
 import com.demo.crudBCI.dto.response.PhoneResponseDTO;
+import com.demo.crudBCI.dto.response.SuccessDTO;
 import com.demo.crudBCI.dto.response.UserResponseDTO;
 import com.demo.crudBCI.entity.Phone;
 import com.demo.crudBCI.entity.User;
@@ -16,6 +16,7 @@ import com.demo.crudBCI.util.Validator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,8 +35,8 @@ public class CRUDUserService {
         this.mapperPhone = mapperPhone;
     }
 
-    public UserResponseDTO getUser(String uuid){
-        User user = this.userRepository.findByUuid(uuid);
+    public UserResponseDTO getUser(GetUserDTO userDTO){
+        User user = this.userRepository.findByUuid(userDTO.getUuid());
         if (Objects.nonNull(user)){
             return generateResponse(user);
         }else {
@@ -63,6 +64,65 @@ public class CRUDUserService {
         return generateResponse(userPhones);
     }
 
+    public UserResponseDTO updateUser(UserUpdateRequestDTO userUpdateRequestDTO){
+        User userUpdate = this.userRepository.findByUuid(userUpdateRequestDTO.getUuid());
+        if(Objects.isNull(userUpdate)){
+            throw  new CrudBCIException(ConstantBCI.GET_USER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        emptyDataValidatorUpdate(userUpdateRequestDTO);
+        boolean emailValidator = Validator.emailValidator(userUpdateRequestDTO.getEmail());
+        boolean passValidator = Validator.passValidator(userUpdateRequestDTO.getPassword());
+        if(!emailValidator){
+            throw  new CrudBCIException(ConstantBCI.EMAIL_ERROR, HttpStatus.BAD_REQUEST);
+        }else if(!passValidator){
+            throw  new CrudBCIException(ConstantBCI.PASSWORD_ERROR,HttpStatus.BAD_REQUEST);
+        }else{
+            updateUserData(userUpdateRequestDTO, userUpdate);
+        }
+        return generateResponse(userUpdate);
+    }
+
+    public UserResponseDTO updatePatchUser(UserPatchDTO userPatchDTO){
+        if(userPatchDTO.getUuid().isBlank()){
+            throw  new CrudBCIException(ConstantBCI.UUID_USER_ERROR, HttpStatus.BAD_REQUEST);
+        }
+
+        User userUpdate = this.userRepository.findByUuid(userPatchDTO.getUuid());
+
+        if(Objects.isNull(userUpdate)){
+            throw  new CrudBCIException(ConstantBCI.GET_USER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        updatePatchUserData(userPatchDTO, userUpdate);
+        return generateResponse(userUpdate);
+    }
+
+    public SuccessDTO deleteUser(GetUserDTO userDTO){
+        User user = this.userRepository.findByUuid(userDTO.getUuid());
+
+        if (Objects.nonNull(user)){
+            List <Phone> phones = this.phoneRepository.findByUuidUser(userDTO.getUuid());
+            for (Phone phone : phones) {
+                this.phoneRepository.deleteById(phone.getIdPhone());
+            }
+            this.userRepository.deleteById(userDTO.getUuid());
+            SuccessDTO succes = new SuccessDTO();
+            succes.setMessage(ConstantBCI.DELETE_USER_SUCCESS);
+            return succes;
+        }else {
+            throw  new CrudBCIException(ConstantBCI.UUID_USER_ERROR, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private  void emptyDataValidatorUpdate(UserUpdateRequestDTO userUpdateRequestDTO){
+        if(userUpdateRequestDTO.getName().trim().isEmpty()){
+            throw  new CrudBCIException(ConstantBCI.EMPTY_NAME_ERROR,HttpStatus.BAD_REQUEST);
+        } else if (userUpdateRequestDTO.getEmail().trim().isEmpty()) {
+            throw  new CrudBCIException(ConstantBCI.EMPTY_EMAIL_ERROR,HttpStatus.BAD_REQUEST);
+        } else if (userUpdateRequestDTO.getPassword().trim().isEmpty()) {
+            throw  new CrudBCIException(ConstantBCI.EMPTY_PASSWORD_ERROR,HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private  void emptyDataValidator(UserRequestDTO userRequestDTO){
         if(userRequestDTO.getName().trim().isEmpty()){
             throw  new CrudBCIException(ConstantBCI.EMPTY_NAME_ERROR,HttpStatus.BAD_REQUEST);
@@ -86,13 +146,28 @@ public class CRUDUserService {
         return userPhones;
     }
 
-    private Phone createPhone(User user, PhoneRequestDTO phones){
+    private void createPhone(User user, PhoneRequestDTO phones){
         Phone phoneCreate = new Phone();
         phoneCreate.setNumber(phones.getNumber());
         phoneCreate.setCityCode(phones.getCitycode());
         phoneCreate.setCountryCode(phones.getContrycode());
         phoneCreate.setUuidUser(user.getUuid());
-        return this.phoneRepository.save(phoneCreate);
+        this.phoneRepository.save(phoneCreate);
+    }
+
+    private void updateUserData(UserUpdateRequestDTO userUpdateRequestDTO, User userUpdate){
+        userUpdate.setModified(LocalDateTime.now());
+        userUpdate.setName(userUpdateRequestDTO.getName().isBlank() ? userUpdate.getName(): userUpdateRequestDTO.getName());
+        userUpdate.setEmail(userUpdateRequestDTO.getEmail().isBlank() ? userUpdate.getEmail() : userUpdateRequestDTO.getEmail());
+        userUpdate.setPassword(userUpdateRequestDTO.getPassword().isBlank() ? userUpdate.getPassword() : userUpdateRequestDTO.getPassword());
+        userUpdate.setIsActive(userUpdateRequestDTO.getIsActive());
+        this.userRepository.updateUser(userUpdate);
+    }
+
+    private void updatePatchUserData(UserPatchDTO userPatchDTO, User userUpdate){
+        userUpdate.setModified(LocalDateTime.now());
+        userUpdate.setIsActive(userPatchDTO.getIsActive());
+        this.userRepository.updatePatchUser(userUpdate);
     }
 
     private UserResponseDTO generateResponse(User user){
