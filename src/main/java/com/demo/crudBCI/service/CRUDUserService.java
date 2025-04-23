@@ -27,12 +27,14 @@ public class CRUDUserService {
     private final PhoneRepository phoneRepository;
     private final UserDTOToUser mapperUser;
     private final PhoneToPhoneDTO mapperPhone;
+    private final Validator utilValidator;
 
-    public CRUDUserService(UserRepository userRepository, PhoneRepository phoneRepository, UserDTOToUser mapperUser, PhoneToPhoneDTO mapperPhone) {
+    public CRUDUserService(UserRepository userRepository, PhoneRepository phoneRepository, UserDTOToUser mapperUser, PhoneToPhoneDTO mapperPhone, Validator utilValidator) {
         this.userRepository = userRepository;
         this.phoneRepository = phoneRepository;
         this.mapperUser = mapperUser;
         this.mapperPhone = mapperPhone;
+        this.utilValidator = utilValidator;
     }
 
     public UserResponseDTO getUser(GetUserDTO userDTO){
@@ -44,13 +46,21 @@ public class CRUDUserService {
         }
     }
 
+    public List<UserResponseDTO> getAllUser(){
+        List<UserResponseDTO> listAllUser = new ArrayList<>();
+        List<User> users = this.userRepository.findAll();
+        for (User user : users) {
+            listAllUser.add(generateResponse(user));
+        }
+        return listAllUser;
+    }
+
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO){
         User userPhones = new User();
-        emptyDataValidator(userRequestDTO);
+        this.utilValidator.emptyDataValidator(userRequestDTO);
         boolean emailValidator = Validator.emailValidator(userRequestDTO.getEmail());
         boolean passValidator = Validator.passValidator(userRequestDTO.getPassword());
         User existEmail = this.userRepository.findByEmail(userRequestDTO.getEmail());
-
         if(!emailValidator){
             throw  new CrudBCIException(ConstantBCI.EMAIL_ERROR, HttpStatus.BAD_REQUEST);
         }else if(!passValidator){
@@ -60,7 +70,6 @@ public class CRUDUserService {
         }else{
             userPhones = createNewUser(userRequestDTO);
         }
-
         return generateResponse(userPhones);
     }
 
@@ -69,7 +78,7 @@ public class CRUDUserService {
         if(Objects.isNull(userUpdate)){
             throw  new CrudBCIException(ConstantBCI.GET_USER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        emptyDataValidatorUpdate(userUpdateRequestDTO);
+        utilValidator.emptyDataValidatorUpdate(userUpdateRequestDTO);
         boolean emailValidator = Validator.emailValidator(userUpdateRequestDTO.getEmail());
         boolean passValidator = Validator.passValidator(userUpdateRequestDTO.getPassword());
         if(!emailValidator){
@@ -86,9 +95,7 @@ public class CRUDUserService {
         if(userPatchDTO.getUuid().isBlank()){
             throw  new CrudBCIException(ConstantBCI.UUID_USER_ERROR, HttpStatus.BAD_REQUEST);
         }
-
         User userUpdate = this.userRepository.findByUuid(userPatchDTO.getUuid());
-
         if(Objects.isNull(userUpdate)){
             throw  new CrudBCIException(ConstantBCI.GET_USER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -98,7 +105,6 @@ public class CRUDUserService {
 
     public SuccessDTO deleteUser(GetUserDTO userDTO){
         User user = this.userRepository.findByUuid(userDTO.getUuid());
-
         if (Objects.nonNull(user)){
             List <Phone> phones = this.phoneRepository.findByUuidUser(userDTO.getUuid());
             for (Phone phone : phones) {
@@ -113,31 +119,10 @@ public class CRUDUserService {
         }
     }
 
-    private  void emptyDataValidatorUpdate(UserUpdateRequestDTO userUpdateRequestDTO){
-        if(userUpdateRequestDTO.getName().trim().isEmpty()){
-            throw  new CrudBCIException(ConstantBCI.EMPTY_NAME_ERROR,HttpStatus.BAD_REQUEST);
-        } else if (userUpdateRequestDTO.getEmail().trim().isEmpty()) {
-            throw  new CrudBCIException(ConstantBCI.EMPTY_EMAIL_ERROR,HttpStatus.BAD_REQUEST);
-        } else if (userUpdateRequestDTO.getPassword().trim().isEmpty()) {
-            throw  new CrudBCIException(ConstantBCI.EMPTY_PASSWORD_ERROR,HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private  void emptyDataValidator(UserRequestDTO userRequestDTO){
-        if(userRequestDTO.getName().trim().isEmpty()){
-            throw  new CrudBCIException(ConstantBCI.EMPTY_NAME_ERROR,HttpStatus.BAD_REQUEST);
-        } else if (userRequestDTO.getEmail().trim().isEmpty()) {
-            throw  new CrudBCIException(ConstantBCI.EMPTY_EMAIL_ERROR,HttpStatus.BAD_REQUEST);
-        } else if (userRequestDTO.getPassword().trim().isEmpty()) {
-            throw  new CrudBCIException(ConstantBCI.EMPTY_PASSWORD_ERROR,HttpStatus.BAD_REQUEST);
-        }
-    }
-
     private User createNewUser(UserRequestDTO userRequestDTO) {
         User user = mapperUser.map(userRequestDTO);
         this.userRepository.save(user);
         User userPhones = this.userRepository.findByUuid(user.getUuid());
-
         if(Objects.nonNull(userPhones)) {
             for (int i = 0; i < userRequestDTO.getPhones().size(); i++) {
                 createPhone(userPhones, userRequestDTO.getPhones().get(i));
@@ -173,7 +158,6 @@ public class CRUDUserService {
     private UserResponseDTO generateResponse(User user){
         User getUser = this.userRepository.findByUuid(user.getUuid());
         List<Phone> phones  = this.phoneRepository.findByUuidUser(user.getUuid());
-
         UserResponseDTO userResponse  = new UserResponseDTO();
         userResponse.setName(getUser.getName());
         userResponse.setEmail(getUser.getEmail());

@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/")
 public class UserController {
@@ -24,6 +26,10 @@ public class UserController {
     @GetMapping("user")
     public ResponseEntity<UserResponseDTO> getUser(@RequestBody GetUserDTO getUser){
         return new ResponseEntity<>(crudUserService.getUser(getUser), HttpStatus.OK);
+    }
+    @GetMapping("allUsers")
+    public ResponseEntity<List<UserResponseDTO>> getAllUser(){
+        return new ResponseEntity<>(crudUserService.getAllUser(), HttpStatus.OK);
     }
     @PostMapping("create")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO user){

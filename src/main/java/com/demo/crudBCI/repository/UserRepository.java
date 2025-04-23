@@ -1,6 +1,7 @@
 package com.demo.crudBCI.repository;
 
 import com.demo.crudBCI.entity.User;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,8 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, String> {
+    List<User> findAll();
 
     User findByUuid(String uuid);
     User findByEmail(String email);

@@ -1,5 +1,10 @@
 package com.demo.crudBCI.util;
 
+import com.demo.crudBCI.constant.ConstantBCI;
+import com.demo.crudBCI.dto.request.UserRequestDTO;
+import com.demo.crudBCI.dto.request.UserUpdateRequestDTO;
+import com.demo.crudBCI.exceptions.CrudBCIException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -17,5 +22,25 @@ public class Validator {
         Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+.,:!])(?=\\S+$).{4,8}$");
         Matcher matcher = pattern.matcher(pass);
         return matcher.matches();
+    }
+
+    public  void emptyDataValidatorUpdate(UserUpdateRequestDTO userUpdateRequestDTO){
+        if(userUpdateRequestDTO.getName().trim().isEmpty()){
+            throw  new CrudBCIException(ConstantBCI.EMPTY_NAME_ERROR, HttpStatus.BAD_REQUEST);
+        } else if (userUpdateRequestDTO.getEmail().trim().isEmpty()) {
+            throw  new CrudBCIException(ConstantBCI.EMPTY_EMAIL_ERROR,HttpStatus.BAD_REQUEST);
+        } else if (userUpdateRequestDTO.getPassword().trim().isEmpty()) {
+            throw  new CrudBCIException(ConstantBCI.EMPTY_PASSWORD_ERROR,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public  void emptyDataValidator(UserRequestDTO userRequestDTO){
+        if(userRequestDTO.getName().trim().isEmpty()){
+            throw  new CrudBCIException(ConstantBCI.EMPTY_NAME_ERROR,HttpStatus.BAD_REQUEST);
+        } else if (userRequestDTO.getEmail().trim().isEmpty()) {
+            throw  new CrudBCIException(ConstantBCI.EMPTY_EMAIL_ERROR,HttpStatus.BAD_REQUEST);
+        } else if (userRequestDTO.getPassword().trim().isEmpty()) {
+            throw  new CrudBCIException(ConstantBCI.EMPTY_PASSWORD_ERROR,HttpStatus.BAD_REQUEST);
+        }
     }
 }
