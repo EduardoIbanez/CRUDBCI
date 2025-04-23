@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 public class UserController {
 
     private final CRUDUserService crudUserService;
@@ -23,29 +23,29 @@ public class UserController {
         this.crudUserService = crudUserService;
     }
 
-    @GetMapping("user")
+    @GetMapping("/user")
     public ResponseEntity<UserResponseDTO> getUser(@RequestBody GetUserDTO getUser){
         return new ResponseEntity<>(crudUserService.getUser(getUser), HttpStatus.OK);
     }
-    @GetMapping("allUsers")
+    @GetMapping("/allUsers")
     public ResponseEntity<List<UserResponseDTO>> getAllUser(){
         return new ResponseEntity<>(crudUserService.getAllUser(), HttpStatus.OK);
     }
-    @PostMapping("create")
+    @PostMapping("/create")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO user){
         return new ResponseEntity<>(crudUserService.createUser(user), HttpStatus.CREATED);
     }
-    @PutMapping("updateActive")
+    @PutMapping("/updateActive")
     public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserUpdateRequestDTO user){
         return new ResponseEntity<>(crudUserService.updateUser(user), HttpStatus.CREATED);
     }
 
-    @PatchMapping("updatePatch")
+    @PatchMapping("/updatePatch")
     public ResponseEntity<UserResponseDTO> updatePatchUser(@RequestBody UserPatchDTO userPatchDTO){
         return new ResponseEntity<>(crudUserService.updatePatchUser(userPatchDTO), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<SuccessDTO> deleteUser(@RequestBody GetUserDTO userDTO){
         return new ResponseEntity<>(crudUserService.deleteUser(userDTO), HttpStatus.OK);
     }
