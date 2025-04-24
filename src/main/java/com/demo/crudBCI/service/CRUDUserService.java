@@ -58,8 +58,8 @@ public class CRUDUserService {
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO){
         User userPhones = new User();
         this.utilValidator.emptyDataValidator(userRequestDTO);
-        boolean emailValidator = Validator.emailValidator(userRequestDTO.getEmail());
-        boolean passValidator = Validator.passValidator(userRequestDTO.getPassword());
+        boolean emailValidator = this.utilValidator.emailValidator(userRequestDTO.getEmail());
+        boolean passValidator = this.utilValidator.passValidator(userRequestDTO.getPassword());
         User existEmail = this.userRepository.findByEmail(userRequestDTO.getEmail());
         if(!emailValidator){
             throw  new CrudBCIException(ConstantBCI.EMAIL_ERROR, HttpStatus.BAD_REQUEST);
@@ -79,8 +79,8 @@ public class CRUDUserService {
             throw  new CrudBCIException(ConstantBCI.GET_USER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
         }
         this.utilValidator.emptyDataValidatorUpdate(userUpdateRequestDTO);
-        boolean emailValidator = Validator.emailValidator(userUpdateRequestDTO.getEmail());
-        boolean passValidator = Validator.passValidator(userUpdateRequestDTO.getPassword());
+        boolean emailValidator = this.utilValidator.emailValidator(userUpdateRequestDTO.getEmail());
+        boolean passValidator = this.utilValidator.passValidator(userUpdateRequestDTO.getPassword());
         if(!emailValidator){
             throw  new CrudBCIException(ConstantBCI.EMAIL_ERROR, HttpStatus.BAD_REQUEST);
         }else if(!passValidator){
