@@ -78,7 +78,7 @@ public class CRUDUserService {
         if(Objects.isNull(userUpdate)){
             throw  new CrudBCIException(ConstantBCI.GET_USER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        utilValidator.emptyDataValidatorUpdate(userUpdateRequestDTO);
+        this.utilValidator.emptyDataValidatorUpdate(userUpdateRequestDTO);
         boolean emailValidator = Validator.emailValidator(userUpdateRequestDTO.getEmail());
         boolean passValidator = Validator.passValidator(userUpdateRequestDTO.getPassword());
         if(!emailValidator){

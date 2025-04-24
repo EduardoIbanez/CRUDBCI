@@ -21,8 +21,6 @@ public class GenerateJWT {
     private final String SECRET = "kkjjkas8bbbkabsa8abskbjskjasje443jjaq3j3jqjqrn3qjjqk4q3jkjq34bq3k3nj42nk4j23x";
 
     public SecretKey generateKey(){
-
-        //return Keys.secretKeyFor(SignatureAlgorithm.HS512);
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
