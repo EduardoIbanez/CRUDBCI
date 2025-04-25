@@ -30,7 +30,7 @@ La url por defecto del proyecto es localhost:9090/api
 La url para la creación de usuario es la siguiente: localhost:9090/create. 
 Esta es la unica url sin necesida de token, ya que es la que permite generar el usuario y el token.
 
-Para poder usar el resto de las url disponibles, es necesario agregar el token obtenido en postman,
+Para poder usar el resto de las url disponibles, es necesario agregar el token obtenido en postman o en el swagger,
 una vez creado el usuario
 
 Se puede acceder a swagger una vez ejecutado el proyecto en la siguiente
@@ -42,4 +42,6 @@ los datos de conexión, así como usuario y contraseña se encuentran en el arch
 El script de la base de datos  se encuentra ubicado en /src/main/resources
 
 El diagrama de secuencia de la solución se encuentra ubicado en /src/main/resources
+
+Los Test unitarios se realizaron con JUnit.
 

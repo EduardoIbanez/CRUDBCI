@@ -28,8 +28,8 @@ public class SwaggerConfig {
                         )
                 )
                 .info(new Info()
-                        .title("CRUD BCI")
-                        .description("CRUD de Manejo de Usuarios")
+                        .title("API CRUD BCI")
+                        .description("API REST de CRUD para Manejo de Usuarios")
                         .version("1.0")
                 );
     }
